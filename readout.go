@@ -7,6 +7,7 @@ import (
 	"image"
 	"image/color"
 	"image/draw"
+	_ "image/png"
 	"io"
 	"os"
 	"strings"
@@ -41,6 +42,25 @@ const (
 	key_u
 	key_space
 )
+
+var mask = loadPNG("tas-mask.png")
+var splash = loadPNG("tas-splash.png")
+
+func loadPNG(name string) *image.RGBA {
+	f, err := os.Open(name)
+	check(err)
+	defer checkF(f.Close)
+	img, _, err := image.Decode(f)
+	check(err)
+
+	// Ensure the image has premultiplied alpha and normalized bounds.
+	rect := img.Bounds()
+	min := rect.Min
+	rect = rect.Sub(rect.Min)
+	rgba := image.NewRGBA(rect)
+	draw.Draw(rgba, rect, img, min, draw.Src)
+	return rgba
+}
 
 func main() {
 	f, err := os.Open("tas.ltm")
@@ -482,8 +502,14 @@ const (
 	display = (target + buttonSize + step) / step
 )
 
+var (
+	minLeft     = width - mask.Rect.Max.X
+	displayTop  = splash.Rect.Max.Y - height
+	readoutRect = image.Rectangle{image.Pt(0, displayTop), splash.Rect.Max}
+)
+
 func render(bits []uint32) {
-	img := image.NewRGBA(image.Rect(0, 0, width, height))
+	img := image.NewRGBA(splash.Rect)
 	left := target
 	for _, b := range bits {
 		left += step
@@ -493,11 +519,22 @@ func render(bits []uint32) {
 	}
 
 	for trueFrame := range bits {
-		left -= step
-		if left < 0 {
-			left = 0
+		splashRect := image.Rect(splash.Rect.Max.X/2, 0, splash.Rect.Max.X, splash.Rect.Max.Y-height)
+		if trueFrame > 3*30 {
+			draw.Draw(img, splashRect, image.Transparent, image.ZP, draw.Src)
+		} else if trueFrame <= 2*30 {
+			draw.Draw(img, splashRect, splash, splashRect.Min, draw.Src)
+		} else {
+			draw.DrawMask(img, splashRect, splash, splashRect.Min, image.NewUniform(color.Alpha{255 - uint8((trueFrame-2*30)*255/30)}), image.ZP, draw.Src)
 		}
-		draw.Draw(img, image.Rect(left, 0, width, height), image.Black, image.ZP, draw.Src)
+		left -= step
+		if left < minLeft {
+			left = minLeft
+			draw.Draw(img, readoutRect, image.Black, image.ZP, draw.Src)
+		} else {
+			draw.Draw(img, readoutRect, splash, image.Pt(0, displayTop), draw.Src)
+			draw.Draw(img, mask.Rect.Add(image.Pt(left, displayTop)), mask, image.ZP, draw.Over)
+		}
 
 		for btn := 0; btn < buttonCount+extraButtonCount; btn++ {
 			var (
@@ -507,9 +544,11 @@ func render(bits []uint32) {
 				any        bool
 			)
 
+			xoff := 0
 			y := top + buttonSize*btn
 			if btn >= buttonCount {
 				y = (height - buttonSize) * (btn - buttonCount) / (extraButtonCount - 1)
+				xoff = (btn%2)*buttonSize - buttonSize/2
 			}
 
 			for i := -display; i <= display; i++ {
@@ -545,10 +584,10 @@ func render(bits []uint32) {
 					fg := retrieveColor(trueFrame + i)
 					if backString[offset-1] {
 						for k := 0; k < step; k++ {
-							overlay(img, buttonMasks[btn], image.Pt(target+i*step-k, y), fg, color.RGBA{})
+							overlay(img, buttonMasks[btn], image.Pt(target+i*step-k+xoff, y), fg, color.RGBA{})
 						}
 					} else {
-						overlay(img, buttonMasks[btn], image.Pt(target+i*step, y), fg, color.RGBA{0, 0, 0, 255})
+						overlay(img, buttonMasks[btn], image.Pt(target+i*step+xoff, y), fg, color.RGBA{0, 0, 0, 255})
 					}
 				}
 			}
@@ -561,17 +600,17 @@ func render(bits []uint32) {
 					fg.B = fg.B/8 + 16
 					if offset > 0 && backString[offset-1] {
 						for k := 0; k < step; k++ {
-							overlay(img, buttonMasks[btn], image.Pt(target+i*step-k, y), fg, color.RGBA{})
+							overlay(img, buttonMasks[btn], image.Pt(target+i*step-k+xoff, y), fg, color.RGBA{})
 						}
 					} else {
-						overlay(img, buttonMasks[btn], image.Pt(target+i*step, y), fg, color.RGBA{0, 0, 0, 255})
+						overlay(img, buttonMasks[btn], image.Pt(target+i*step+xoff, y), fg, color.RGBA{0, 0, 0, 255})
 					}
 				}
 			}
 
 			if any || btn < buttonCount {
 				mh := uint8(255 * glowLevel[display] / glowHold)
-				overlay(img, buttonMasks[btn], image.Pt(target-1, y), color.RGBA{192, 192, 192, 255}, color.RGBA{mh, mh, mh, 255})
+				overlay(img, buttonMasks[btn], image.Pt(target-1+xoff, y), color.RGBA{192, 192, 192, 255}, color.RGBA{mh, mh, mh, 255})
 			}
 		}
 
@@ -581,7 +620,7 @@ func render(bits []uint32) {
 }
 
 func overlay(img *image.RGBA, mask [2]*image.Alpha, pt image.Point, col, xcol color.RGBA) {
-	rect := image.Rect(0, 0, buttonSize, buttonSize).Add(pt)
+	rect := image.Rect(0, 0, buttonSize, buttonSize).Add(pt).Add(image.Pt(0, displayTop))
 	draw.DrawMask(img, rect, image.NewUniform(col), image.ZP, mask[0], image.ZP, draw.Over)
 	draw.DrawMask(img, rect, image.NewUniform(xcol), image.ZP, mask[1], image.ZP, draw.Over)
 }
