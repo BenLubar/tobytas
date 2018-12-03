@@ -1,0 +1,11 @@
+# game directories
+undertale
+deltarune
+
+# binary output files
+*.ltm
+*.mp4
+
+# youtubeuploader
+client_secrets.json
+request.token
