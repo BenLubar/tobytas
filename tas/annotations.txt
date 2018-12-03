@@ -1,0 +1,9 @@
+Goal: Complete Undertale (true pacifist route) and Deltarune (maybe twice in a row, we'll see as the TAS progresses)
+
+Restrictions:
+
+- Both games must receive the same inputs on the same frames (that is, a single libTAS movie is provided for both games)
+- No damage dealt (except for the explicitly non-canon fights at the end of the Neutral route in Undertale)
+- No damage taken (I'm hoping this is possible in the prison boss fight in Deltarune; if not, that is an exception)
+- Glitchless (most notably, this means no punch card exploit)
+- No developer-intended skips (this means no hidden switches that skip puzzles, but hidden switches that are the intended solution to puzzles are allowed, for example in the Deltarune room that darkens as you go around the circle)
