@@ -1,9 +1,7 @@
 package main
 
 import (
-	"archive/tar"
 	"bufio"
-	"compress/gzip"
 	"image"
 	"image/color"
 	"image/draw"
@@ -99,31 +97,12 @@ func removeBlack(src *image.RGBA) *image.RGBA {
 }
 
 func main() {
-	f, err := os.Open("tas.ltm")
+	inputs, err := os.Open("tas/inputs")
 	check(err)
-	defer checkF(f.Close)
-	zr, err := gzip.NewReader(f)
-	check(err)
-	defer checkF(zr.Close)
-	tr := tar.NewReader(zr)
+	defer checkF(inputs.Close)
 
-	for {
-		h, err := tr.Next()
-		check(err)
-		if h.Name == "inputs" {
-			bits := parse(tr)
-			render(bits)
-			break
-		}
-	}
-
-	for {
-		_, err := tr.Next()
-		if err == io.EOF {
-			break
-		}
-		check(err)
-	}
+	bits := parse(inputs)
+	render(bits)
 }
 
 func parse(r io.Reader) []uint32 {
