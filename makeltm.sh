@@ -10,7 +10,7 @@ for FILE in tas/*; do
     TIME=$(git log --pretty=format:%cd -n 1 --date=iso -- "$FILE")
     TIME=$(date --date="$TIME" +%Y%m%d%H%M.%S)
     touch -m -t "$TIME" "$FILE"
-    chmod 775 "$FILE"
+    chmod 664 "$FILE"
 done
 
 # force the TAR file's group/user names to match mine, and tell gzip not to record metadata about the tar file itself.
