@@ -44,7 +44,9 @@ const (
 )
 
 var mask = loadPNG("tas-mask.png")
+var invMask = invertMask(mask)
 var splash = loadPNG("tas-splash.png")
+var splashKey = removeBlack(splash)
 
 func loadPNG(name string) *image.RGBA {
 	f, err := os.Open(name)
@@ -60,6 +62,40 @@ func loadPNG(name string) *image.RGBA {
 	rgba := image.NewRGBA(rect)
 	draw.Draw(rgba, rect, img, min, draw.Src)
 	return rgba
+}
+
+func invertMask(mask *image.RGBA) *image.Alpha {
+	inv := image.NewAlpha(mask.Rect)
+	for i := range inv.Pix {
+		inv.Pix[i] = ^mask.Pix[3+4*i]
+	}
+	return inv
+}
+
+func isBlack(c color.RGBA) bool {
+	return c.R == 0 && c.G == 0 && c.B == 0
+}
+
+func removeBlack(src *image.RGBA) *image.RGBA {
+	dst := image.NewRGBA(src.Rect)
+	copy(dst.Pix, src.Pix)
+	for y := dst.Rect.Min.Y; y < dst.Rect.Max.Y; y++ {
+		for x := dst.Rect.Min.X; x < dst.Rect.Max.X; x++ {
+			allBlack := true
+			for dy := -1; allBlack && dy <= 1; dy++ {
+				for dx := -1; allBlack && dx <= 1; dx++ {
+					if !isBlack(dst.RGBAAt(x+dx, y+dy)) {
+						allBlack = false
+					}
+				}
+			}
+
+			if allBlack {
+				dst.SetRGBA(x, y, color.RGBA{})
+			}
+		}
+	}
+	return dst
 }
 
 func main() {
@@ -504,19 +540,13 @@ const (
 
 var (
 	minLeft     = width - mask.Rect.Max.X
-	displayTop  = splash.Rect.Max.Y - height
-	readoutRect = image.Rectangle{image.Pt(0, displayTop), splash.Rect.Max}
+	totalHeight = splash.Rect.Max.Y
+	displayTop  = totalHeight - height
 )
 
 func render(bits []uint32) {
 	img := image.NewRGBA(splash.Rect)
-	left := target
-	for _, b := range bits {
-		left += step
-		if b != 0 {
-			break
-		}
-	}
+	left := target + 12*30*step
 
 	for trueFrame := range bits {
 		splashRect := image.Rect(splash.Rect.Max.X/2, 0, splash.Rect.Max.X, splash.Rect.Max.Y-height)
@@ -527,14 +557,7 @@ func render(bits []uint32) {
 		} else {
 			draw.DrawMask(img, splashRect, splash, splashRect.Min, image.NewUniform(color.Alpha{255 - uint8((trueFrame-2*30)*255/30)}), image.ZP, draw.Src)
 		}
-		left -= step
-		if left < minLeft {
-			left = minLeft
-			draw.Draw(img, readoutRect, image.Black, image.ZP, draw.Src)
-		} else {
-			draw.Draw(img, readoutRect, splash, image.Pt(0, displayTop), draw.Src)
-			draw.Draw(img, mask.Rect.Add(image.Pt(left, displayTop)), mask, image.ZP, draw.Over)
-		}
+		draw.Draw(img, image.Rect(0, displayTop, width, totalHeight), image.Black, image.ZP, draw.Src)
 
 		for btn := 0; btn < buttonCount+extraButtonCount; btn++ {
 			var (
@@ -612,6 +635,14 @@ func render(bits []uint32) {
 				mh := uint8(255 * glowLevel[display] / glowHold)
 				overlay(img, buttonMasks[btn], image.Pt(target-1+xoff, y), color.RGBA{192, 192, 192, 255}, color.RGBA{mh, mh, mh, 255})
 			}
+		}
+
+		left -= step
+		if left < minLeft {
+			left = minLeft
+		} else {
+			draw.Draw(img, image.Rect(0, displayTop, left, totalHeight), splashKey, image.Pt(0, displayTop), draw.Over)
+			draw.DrawMask(img, image.Rect(left, displayTop, width, totalHeight), splashKey, image.Pt(left, displayTop), invMask, image.ZP, draw.Over)
 		}
 
 		_, err := os.Stdout.Write(img.Pix)
