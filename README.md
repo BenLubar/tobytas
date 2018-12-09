@@ -8,18 +8,21 @@
   - for 32-bit libTAS, copy the Undertale runner executable to Deltarune.
 - Run [`./makeltm.sh filename.ltm`](makeltm.sh). This will create a libTAS movie file from the extracted contents in the [tas](tas) directory.
 - If you are planning to edit the TAS, rename one or both of the runner executables so that libTAS doesn't get confused.
-- In libTAS, set the following options for Undertale/Deltarune: (I am unsure of how many are actually required)
-  - Runtime / Time tracking / Main thread: `clock_gettime`
-  - Runtime / Time tracking / Secondary thread: `gettimeofday`
+- In libTAS, set the following options for Undertale/Deltarune:
   - Runtime / `Backup savefiles in memory` (other options can be set by preference)
-  - General options / Frames per second: `30 / 1`
-  - Input: `Keyboard support` (disable `Mouse support`, probably only relevant if editing)
+  - Input: `Keyboard support` (disable `Mouse support`, only relevant if editing)
 
 ## Dumping:
 
 - Filename should be `undertale.mp4` or `deltarune.mp4` in this directory.
-- ffmpeg settings: `-c:v libx264 -crf 0 -c:a aac -b:a 128k -movflags +faststart` (`-crf 0` is important for lossless, the rest isn't strictly needed)
+- ffmpeg settings: `-c:v libx264 -crf 0 -c:a flac -strict -2 -movflags +faststart` (you can use whatever you want; these are just my settings)
 - Record movie as usual for libTAS.
+  - Tools / `Start encode`
+  - Make sure "Movie recording" is enabled (otherwise the game will not receive any inputs at all)
+  - General Options / `Pause` must be unchecked or the TAS will wait on frame 1 for input.
+  - General Options / `Fast-forward` can be checked to remove the wait time between frames.
+  - Click `Start`.
+  - Wait for the video to play through, then click `Stop`.
 
 ## Encoding:
 
