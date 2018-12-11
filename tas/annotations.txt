@@ -1,9 +1,28 @@
-Goal: Complete Undertale (true pacifist route) and Deltarune (maybe twice in a row, we'll see as the TAS progresses)
+Game: Undertale + Deltarune (two games one controller)
+Version: Linux English (Undertale v1.06, Deltarune v0.6.6.6)
+Categories: true pacifist no-hit¹, glitchless, no skips²
 
-Restrictions:
+Game summary: Undertale
 
-- Both games must receive the same inputs on the same frames (that is, a single libTAS movie is provided for both games)
-- No damage dealt (except for the explicitly non-canon fights at the end of the Neutral route in Undertale)
-- No damage taken (I'm hoping this is possible in the prison boss fight in Deltarune; if not, that is an exception)
-- Glitchless (most notably, this means no punch card exploit)
-- No developer-intended skips (this means no hidden switches that skip puzzles, but hidden switches that are the intended solution to puzzles are allowed, for example in the Deltarune room that darkens as you go around the circle)
+[TODO]
+
+Game summary: Deltarune
+
+[TODO]
+
+Footnotes:
+
+¹ no-hit and true pacifist are violated in cases where gameplay makes it impossible to do otherwise.
+
+An exhaustive list:
+
+- The fights with Asgore and Photoshop Flowey at the end of the neutral route of Undertale require dealing damage to continue. These are erased from the timeline once both are completed, so they are considered non-canon by the true pacifist route, which comes afterward. The no-hit rule still applies during this section of the game.
+- There is no way to avoid Susie dealing damage to K.Round the first time it is encountered. However, it cannot be killed via this method as it has an unlimited supply of soy milk.
+- [unsure if this is the case; will check] Taking damage in the Deltarune prison sequence is required to end the fight between Lancer and Susie. Lancer is guaranteed to take damage. If possible, I will avoid taking damage on Susie, although this is slower if it is even possible.
+- Some cutscenes towards the end of Undertale show the player's health being reduced. These are unavoidable without the use of glitches. The player never has control of their character during these reduced-health states.
+
+² This refers to developer-intended hidden methods of skipping gameplay. Any non-developer-intended skips are already covered by the "glitchless" category.
+
+For example, some puzzles in Undertale can be bypassed via a nearby hidden switch, and Deltarune allows skipping the entire overworld section of the game on NG+ by going back to bed.
+
+Non-examples include dialogue-based skips (such as giving a negative response to "do you want to watch a long unskippable cutscene") and hidden switches that are the intended solution to puzzles (that is, the puzzle cannot be completed in any way other than the hidden switch).
