@@ -524,19 +524,11 @@ var (
 )
 
 func render(bits []uint32) {
-	img := image.NewRGBA(splash.Rect)
+	img := image.NewRGBA(image.Rect(0, 0, width, height))
 	left := target + 12*30*step
 
 	for trueFrame := range bits {
-		splashRect := image.Rect(splash.Rect.Max.X/2, 0, splash.Rect.Max.X, splash.Rect.Max.Y-height)
-		if trueFrame > 3*30 {
-			draw.Draw(img, splashRect, image.Transparent, image.ZP, draw.Src)
-		} else if trueFrame <= 2*30 {
-			draw.Draw(img, splashRect, splash, splashRect.Min, draw.Src)
-		} else {
-			draw.DrawMask(img, splashRect, splash, splashRect.Min, image.NewUniform(color.Alpha{255 - uint8((trueFrame-2*30)*255/30)}), image.ZP, draw.Src)
-		}
-		draw.Draw(img, image.Rect(0, displayTop, width, totalHeight), image.Black, image.ZP, draw.Src)
+		draw.Draw(img, img.Rect, image.Black, image.ZP, draw.Src)
 
 		for btn := 0; btn < buttonCount+extraButtonCount; btn++ {
 			var (
@@ -630,7 +622,7 @@ func render(bits []uint32) {
 }
 
 func overlay(img *image.RGBA, mask [2]*image.Alpha, pt image.Point, col, xcol color.RGBA) {
-	rect := image.Rect(0, 0, buttonSize, buttonSize).Add(pt).Add(image.Pt(0, displayTop))
+	rect := image.Rect(0, 0, buttonSize, buttonSize).Add(pt)
 	draw.DrawMask(img, rect, image.NewUniform(col), image.ZP, mask[0], image.ZP, draw.Over)
 	draw.DrawMask(img, rect, image.NewUniform(xcol), image.ZP, mask[1], image.ZP, draw.Over)
 }
