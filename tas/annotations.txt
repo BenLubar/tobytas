@@ -1,14 +1,38 @@
 Game: Undertale + Deltarune (two games one controller)
 Version: Linux English (Undertale v1.06, Deltarune v0.6.6.6)
-Categories: true pacifist no-hit¹, glitchless, no skips²
+Categories: true pacifist¹, no-hit¹, glitchless, no skips²
 
 Game summary: Undertale
 
-[TODO]
+Undertale is a game about subverting the player's expectations. The game never explictly lies to the player, but it frequently gives the player incomplete information and allows the player to lie to themself.
+
+[WARNING: The remainder of this summary includes very important story spoilers. I've rot13'd it to avoid anyone reading it by accident.]
+
+Gur tnzr ortvaf jvgu n phgfprar fubjvat gur jne orgjrra uhznaf naq zbafgref. Gur uhznaf jba naq ybpxrq gur zbafgref njnl haqretebhaq. Gur phgfprar raqf jvgu n puvyq va n fuveg jvgu n fvatyr ubevmbagny fgevcr snyyvat vagb n qrrc ubyr va n zbhagnva naq ynaqvat ba fbzr sybjref.
+
+Gur tnzr gura nfxf gur cynlre gb anzr gur snyyra puvyq.
+
+Arvgure fnlvat gung gur uhznaf jrer svtugvat gur zbafgref abe nfxvat gur cynlre gb anzr gur snyyra puvyq ner yvrf. Vs gur cynlre unf qrpvqrq gung zbafgref ner onq be gung gurl jvyy or cynlvat nf gur snyyra puvyq, gur tnzr unfa'g gbyq gurz nalguvat gb fhccbeg gung, ohg gur tnzr nyfb unfa'g gbyq gurz nalguvat gb pbagenqvpg gung.
+
+Jura gur snyyra puvyq vf anzrq, tnzrcynl ortvaf jvgu gur cynlre pbagebyyvat n punenpgre fvzvyne gb gur bar va gur phgfprar, rkprcg gung gurve fuveg unf gjb ubevmbagny fgevcrf. Guvf vf abg na vapbafvfgrapl. Gur punenpgre orvat pbagebyyrq ol gur cynlre vf abg gur snyyra puvyq.
+
+Ubjrire, gur cynlre punenpgre VF gur snyyra puvyq.
+
+Fbzrguvat gb xrrc va zvaq vf gung nal gvzr grkg nccrnef va nyy pncf be n pbybe, gur tnzr vf cebonoyl pbrepvat lbh gb yvr gb lbhefrys. Rknzcyrf sebz arne gur fgneg bs gur tnzr vapyhqr RKC, YI (juvpu fgnaqf sbe YBIR), FNIR, naq QRGREZVANGVBA.
+
+Rirelguvat Haqregnyr qbrf vf irel pnershyyl neenatrq gb grnpu gur cynlre (vapbeerpgyl) ubj tnzrcynl jbexf. Rirel znwbe obff svtug, naq rfcrpvnyyl gur frpgvba bs gur arhgeny ebhgr fgnegvat ng Arj Ubzr, vf gur tnzr fhqqrayl chyyvat gur eht bhg sebz haqre gur cynlre. Guvf vfa'g whfg tnzrcynl zrpunavpf, ohg nyfb gur neg naq zhfvp fglyrf.
 
 Game summary: Deltarune
 
-[TODO]
+Although the name of "Deltarune" could be considered a spoiler, I'm going to assume it's known widely enough that I shouldn't bother trying to be mysterious about this.
+
+Deltarune is the mysterious sequel to Undertale. It takes place in a universe different, but not quite separate from the one in which Undertale takes place. It was released on October 31st 2018 via a series of mysterious tweets from the Undertale Twitter account.
+
+The original website on that day can be seen in the Internet Archive: <https://web.archive.org/web/20181031130251/https://www.deltarune.com/>
+
+Once again, the game never explicitly lies to the player, but it does take every opportunity it can to make the player lie to themself. The player thinks they're taking a survey (which is technically true), but the result is discarded and the true game begins once the survey is completed.
+
+Gameplay follows a similar format to Undertale, but combat is done in a party of one or two additional characters, and running exists as a movement mechanic. Also, instead of random battles, the game shows all encounters in the overworld as characters that chase the player.
 
 Footnotes:
 
