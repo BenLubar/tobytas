@@ -2,15 +2,16 @@
 
 - Install Undertale (via Steam, Itch.io, etc.)
 - Install Deltarune (see [this Reddit thread](https://www.reddit.com/r/Deltarune/comments/9wizh3/deltarune_running_on_linux_natively/) for information about how to run it natively on Linux)
-- If you have an Undertale and/or Deltarune save file, back up and remove them. You can do this by simply renaming the folders.
-- Assuming you don't want to try to deal with two copies of libTAS for different architectures, do ONE of the following:
-  - for 64-bit libTAS, copy the Deltarune runner executable to Undertale.
-  - for 32-bit libTAS, copy the Undertale runner executable to Deltarune.
-- Run [`./makeltm.sh filename.ltm`](makeltm.sh). This will create a libTAS movie file from the extracted contents in the [tas](tas) directory.
-- If you are planning to edit the TAS, rename one or both of the runner executables so that libTAS doesn't get confused.
+- If you have an Undertale and/or Deltarune save file, back up and remove them. You can do this by simply renaming the folders `~/.config/UNDERTALE` and `~/.config/DELTARUNE`.
+- Since it's hard to install libTAS for multiple architectures at the same time, copy Deltarune's `runner` program (64 bit) over Undertale's (32 bit).
+- Rename `undertale/runner` to `undertale/undertale-runner` and `deltarune/runner` to `deltarune/deltarune-runner`. This is required to prevent libTAS from loading save states from the wrong game and also for a later part of the TAS.
+- Run [`./makeltm.sh undertale.ltm; ./makeltm.sh deltarune.ltm`](makeltm.sh). This will create libTAS movie files from the extracted contents in the [tas](tas) directory.
 - In libTAS, set the following options for Undertale/Deltarune:
   - Runtime / `Backup savefiles in memory` (other options can be set by preference)
   - Input: `Keyboard support` (disable `Mouse support`, only relevant if editing)
+- The "game" you'll be running in libTAS is actually a [proxy program](proxy.c) which assists with restarting Undertale during the TAS. (A compiled version will be included in the final version of the TAS.)
+  - There should be two copies; one named `undertale/undertale-proxy` and the other named `deltarune/deltarune-proxy`; again, this is to prevent libTAS from being confused.
+  - For each copy, set the argument list to `./undertale-runner` or `./deltarune-runner` based on the game.
 
 ## Dumping:
 
