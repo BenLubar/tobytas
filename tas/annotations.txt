@@ -36,14 +36,21 @@ Gameplay follows a similar format to Undertale, but combat is done in a party of
 
 Footnotes:
 
-¹ no-hit and true pacifist are violated in cases where gameplay makes it impossible to do otherwise.
+¹ no-hit refers to no damage dealt or taken. These rules are violated in cases where gameplay makes it impossible to do otherwise.
 
 An exhaustive list:
 
-- The fights with Asgore and Photoshop Flowey at the end of the neutral route of Undertale require dealing damage to continue. These are erased from the timeline once both are completed, so they are considered non-canon by the true pacifist route, which comes afterward. The no-hit rule still applies during this section of the game.
-- There is no way to avoid Susie dealing damage to K.Round the first time it is encountered. However, it cannot be killed via this method as it has an unlimited supply of soy milk.
-- [unsure if this is the case; will check] Taking damage in the Deltarune prison sequence is required to end the fight between Lancer and Susie. Lancer is guaranteed to take damage. If possible, I will avoid taking damage on Susie, although this is slower if it is even possible.
-- Some cutscenes towards the end of Undertale show the player's health being reduced. These are unavoidable without the use of glitches. The player never has control of their character during these reduced-health states.
+- The fights with Asgore and Photoshop Flowey at the end of the neutral route of Undertale require dealing damage to complete. These are erased from the timeline once both are completed, so they are considered non-canon by the true pacifist route, which comes afterward. The "no damage taken" rule still applies during this section of the game.
+
+- There is no way to avoid Susie dealing damage to K. ROUND or Lancer in one fight each. Neither of these characters can be killed via damage.
+
+- The player is unavoidably attacked in several storyline sequences. These attacks do not modify the player's health.
+
+- There are three cutscenes in which the player takes fatal or near-fatal damage. The player never regains control after any of these cutscenes.
+
+- As Deltarune is much shorter than Undertale, the Undertale genocide route will replace Deltarune once the game is over. I do not consider this a violation of the rule as this is done for entertainment and is separate from the two start-to-end completions of the games with no damage dealt or taken. If necessary, I may be able to produce a version of the TAS in which Deltarune wastes time until the end of Undertale instead.
+
+The fight with Mettaton EX includes a mechanic that reduces the required score needed to complete the fight. This mechanic is *not* allowed as an exception to the "no damage dealt" rule despite it not affecting the hitpoints of the boss as it causes visible injuries to the boss.
 
 ² This refers to developer-intended hidden methods of skipping gameplay. Any non-developer-intended skips are already covered by the "glitchless" category.
 
