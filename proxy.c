@@ -17,7 +17,8 @@
 void remove_temp_directory(void);
 int init_program_socket(void);
 int init_game_socket(void);
-int do_libtas_handshake(int program_fd);
+int do_libtas_handshake_program(int program_fd);
+int do_libtas_handshake_game(int game_fd);
 int proxy_communications(int program_fd, int game_fd);
 
 struct
@@ -255,9 +256,9 @@ int main(int argc, char *argv[])
 		return 1;
 	}
 
-	if (do_libtas_handshake(program_socket))
+	if (do_libtas_handshake_program(program_socket))
 	{
-		/* error already printed by do_libtas_handshake */
+		/* error already printed by do_libtas_handshake_program */
 		return 1;
 	}
 
@@ -291,6 +292,12 @@ int main(int argc, char *argv[])
 		if (game_socket < 0)
 		{
 			/* error already printed by init_game_socket */
+			return 1;
+		}
+
+		if (do_libtas_handshake_game(game_socket))
+		{
+			/* error already printed by do_libtas_handshake_game */
 			return 1;
 		}
 
@@ -394,7 +401,7 @@ int init_program_socket(void)
 	return socket_fd;
 }
 
-int do_libtas_handshake(int program_fd)
+int do_libtas_handshake_program(int program_fd)
 {
 #pragma pack(push, 1)
 	struct
@@ -474,6 +481,99 @@ int do_libtas_handshake(int program_fd)
 
 	return expectMessage(program_fd, MSGN_END_INIT);
 }
+
+int do_libtas_handshake_game(int game_fd)
+{
+	if (expectMessage(game_fd, MSGB_PID))
+	{
+		return 1;
+	}
+
+	pid_t pid;
+	if (recv(game_fd, &pid, sizeof(pid), MSG_WAITALL) != sizeof(pid))
+	{
+		perror("failed to read PID from game");
+		return 1;
+	}
+
+	if (expectMessage(game_fd, MSGB_END_INIT))
+	{
+		return 1;
+	}
+
+	int message = MSGN_CONFIG;
+	if (send(game_fd, &message, sizeof(message), 0) != sizeof(message))
+	{
+		perror("failed to send MSGN_CONFIG init packet to game");
+		return 1;
+	}
+
+	if (send(game_fd, &SharedConfig, sizeof(SharedConfig), MSG_WAITALL) != sizeof(SharedConfig))
+	{
+		perror("failed to send SharedConfig init packet to game");
+		return 1;
+	}
+
+	if (SharedConfig.av_dumping)
+	{
+		message = MSGN_DUMP_FILE;
+		if (send(game_fd, &message, sizeof(message), 0) != sizeof(message))
+		{
+			perror("failed to send MSGN_DUMP_FILE init packet to game");
+			return 1;
+		}
+
+		if (sendString(game_fd, dumpfile))
+		{
+			return 1;
+		}
+
+		if (sendString(game_fd, ffmpegoptions))
+		{
+			return 1;
+		}
+	}
+
+	if (SharedConfig.incremental_savestates)
+	{
+		message = MSGN_BASE_SAVESTATE_INDEX;
+		if (send(game_fd, &message, sizeof(message), 0) != sizeof(message))
+		{
+			perror("failed to send MSGN_BASE_SAVESTATE_INDEX init packet to game");
+			return 1;
+		}
+
+		if (send(game_fd, &base_savestate_index, sizeof(base_savestate_index), 0) != sizeof(base_savestate_index))
+		{
+			perror("failed to send base_savestate_index to game");
+			return 1;
+		}
+
+		if (!SharedConfig.savestates_in_ram) {
+			message = MSGN_BASE_SAVESTATE_PATH;
+			if (send(game_fd, &message, sizeof(message), 0) != sizeof(message))
+			{
+				perror("failed to send MSGN_BASE_SAVESTATE_PATH init packet to game");
+				return 1;
+			}
+
+			if (sendString(game_fd, base_savestate_path))
+			{
+				return 1;
+			}
+		}
+	}
+
+	message = MSGN_END_INIT;
+	if (send(game_fd, &message, sizeof(message), 0) != sizeof(message))
+	{
+		perror("failed to send MSGN_END_INIT packet to game");
+		return 1;
+	}
+
+	return 0;
+}
+
 
 int init_game_socket(void)
 {
@@ -571,7 +671,6 @@ int handle_program_message(int program_fd, int game_fd)
 			/* fallthrough */
 		case MSGN_START_FRAMEBOUNDARY:
 		case MSGN_END_FRAMEBOUNDARY:
-		case MSGN_END_INIT:
 		case MSGN_SAVESTATE:
 		case MSGN_LOADSTATE:
 		case MSGN_STOP_ENCODE:
@@ -665,81 +764,6 @@ int handle_program_message(int program_fd, int game_fd)
 	return 0;
 }
 
-int sendGameInit(int fd)
-{
-	int message = MSGN_CONFIG;
-	if (send(fd, &message, sizeof(message), 0) != sizeof(message))
-	{
-		perror("failed to send MSGN_CONFIG init packet to game");
-		return 1;
-	}
-
-	if (send(fd, &SharedConfig, sizeof(SharedConfig), MSG_WAITALL) != sizeof(SharedConfig))
-	{
-		perror("failed to send SharedConfig init packet to game");
-		return 1;
-	}
-
-	if (SharedConfig.av_dumping)
-	{
-		message = MSGN_DUMP_FILE;
-		if (send(fd, &message, sizeof(message), 0) != sizeof(message))
-		{
-			perror("failed to send MSGN_DUMP_FILE init packet to game");
-			return 1;
-		}
-
-		if (sendString(fd, dumpfile))
-		{
-			return 1;
-		}
-
-		if (sendString(fd, ffmpegoptions))
-		{
-			return 1;
-		}
-	}
-
-	if (SharedConfig.incremental_savestates)
-	{
-		message = MSGN_BASE_SAVESTATE_INDEX;
-		if (send(fd, &message, sizeof(message), 0) != sizeof(message))
-		{
-			perror("failed to send MSGN_BASE_SAVESTATE_INDEX init packet to game");
-			return 1;
-		}
-
-		if (send(fd, &base_savestate_index, sizeof(base_savestate_index), 0) != sizeof(base_savestate_index))
-		{
-			perror("failed to send base_savestate_index to game");
-			return 1;
-		}
-
-		if (!SharedConfig.savestates_in_ram) {
-			message = MSGN_BASE_SAVESTATE_PATH;
-			if (send(fd, &message, sizeof(message), 0) != sizeof(message))
-			{
-				perror("failed to send MSGN_BASE_SAVESTATE_PATH init packet to game");
-				return 1;
-			}
-
-			if (sendString(fd, base_savestate_path))
-			{
-				return 1;
-			}
-		}
-	}
-
-	message = MSGN_END_INIT;
-	if (send(fd, &message, sizeof(message), 0) != sizeof(message))
-	{
-		perror("failed to send MSGN_END_INIT packet to game");
-		return 1;
-	}
-
-	return 0;
-}
-
 int handle_game_message(int program_fd, int game_fd)
 {
 	int message;
@@ -768,13 +792,6 @@ int handle_game_message(int program_fd, int game_fd)
 
 	switch (message)
 	{
-		case MSGB_END_INIT:
-			if (sendGameInit(game_fd))
-			{
-				return 1;
-			}
-			/* don't forward */
-			return 0;
 		case MSGB_QUIT:
 			if (!user_quit)
 			{
@@ -798,14 +815,6 @@ int handle_game_message(int program_fd, int game_fd)
 			payload = &framecount_time;
 			payload_size = sizeof(framecount_time);
 			break;
-		case MSGB_PID:
-			if (recv(game_fd, &pid, sizeof(pid), MSG_WAITALL) != sizeof(pid))
-			{
-				perror("failed to receive game pid");
-				return 1;
-			}
-			/* don't forward */
-			return 0;
 		case MSGB_WINDOW_ID:
 			payload = &window;
 			payload_size = sizeof(window);
