@@ -17,9 +17,10 @@
 void remove_temp_directory(void);
 int init_program_socket(void);
 int init_game_socket(void);
+int do_libtas_handshake(int program_fd);
 int proxy_communications(int program_fd, int game_fd);
 
-typedef struct
+struct
 {
 	unsigned long int keys[16];
 	int pointer_x, pointer_y;
@@ -80,7 +81,7 @@ enum DebugFlags
 
 typedef int LogCategoryFlag;
 
-typedef struct
+struct
 {
 	bool running;
 	int speed_divisor;
@@ -125,6 +126,81 @@ typedef struct
 	int locale;
 	bool virtual_steam;
 } SharedConfig;
+
+typedef struct
+{
+	size_t length;
+	char *data;
+} string_t;
+
+static bool user_quit = false;
+static string_t dumpfile = {0, NULL};
+static string_t ffmpegoptions = {0, NULL};
+static int base_savestate_index;
+static string_t base_savestate_path = {0, NULL};
+static unsigned int base_frame_count = 0;
+static unsigned int last_frame_count = 0;
+static struct timespec last_frame_time = {0, 0};
+
+int recvString(int fd, string_t *str)
+{
+	str->length = 0;
+	free(str->data);
+	str->data = NULL;
+
+	if (recv(fd, &str->length, sizeof(str->length), MSG_WAITALL) != sizeof(str->length))
+	{
+		perror("failed to read string length");
+		return 1;
+	}
+	str->data = calloc(1, str->length);
+	if (!str->data)
+	{
+		perror("failed to allocate string");
+		return 1;
+	}
+	if (recv(fd, str->data, str->length, MSG_WAITALL) != str->length)
+	{
+		perror("failed to read string");
+		free(str->data);
+		str->data = NULL;
+		return 1;
+	}
+
+	return 0;
+}
+
+int sendString(int fd, string_t str)
+{
+	if (send(fd, &str.length, sizeof(str.length), 0) != sizeof(str.length))
+	{
+		perror("failed to write string length");
+		return 1;
+	}
+	if (send(fd, str.data, str.length, 0) != str.length)
+	{
+		perror("failed to write string");
+		return 1;
+	}
+
+	return 0;
+}
+
+int expectMessage(int fd, int expected)
+{
+	int message;
+	if (recv(fd, &message, sizeof(message), MSG_WAITALL) != sizeof(message))
+	{
+		perror("failed to read message number");
+		return 1;
+	}
+	if (message != expected)
+	{
+		fprintf(stderr, "unexpected message number; expecting %d but got %d\n", expected, message);
+		return 1;
+	}
+	return 0;
+}
 
 typedef enum
 {
@@ -179,7 +255,13 @@ int main(int argc, char *argv[])
 		return 1;
 	}
 
-	for (;;)
+	if (do_libtas_handshake(program_socket))
+	{
+		/* error already printed by do_libtas_handshake */
+		return 1;
+	}
+
+	while (!user_quit)
 	{
 		const pid_t pid = fork();
 		if (pid < 0)
@@ -211,6 +293,8 @@ int main(int argc, char *argv[])
 			/* error already printed by init_game_socket */
 			return 1;
 		}
+
+		base_frame_count = last_frame_count;
 
 		if (proxy_communications(program_socket, game_socket))
 		{
@@ -310,6 +394,87 @@ int init_program_socket(void)
 	return socket_fd;
 }
 
+int do_libtas_handshake(int program_fd)
+{
+#pragma pack(push, 1)
+	struct
+	{
+		int msg_pid;
+		pid_t pid;
+		int msg_end;
+	} payload;
+#pragma pack(pop)
+	payload.msg_pid = MSGB_PID;
+	payload.pid = getpid();
+	payload.msg_end = MSGB_END_INIT;
+
+	if (send(program_fd, &payload, sizeof(payload), 0) != sizeof(payload))
+	{
+		perror("failed to send init packets to program");
+		return 1;
+	}
+
+	if (expectMessage(program_fd, MSGN_CONFIG))
+	{
+		return 1;
+	}
+
+	if (recv(program_fd, &SharedConfig, sizeof(SharedConfig), MSG_WAITALL) != sizeof(SharedConfig))
+	{
+		perror("failed to read SharedConfig init packet from program");
+		return 1;
+	}
+
+	SharedConfig.prevent_savefiles = false;
+	last_frame_time = SharedConfig.initial_time;
+
+	if (SharedConfig.av_dumping)
+	{
+		if (expectMessage(program_fd, MSGN_DUMP_FILE))
+		{
+			return 1;
+		}
+
+		if (recvString(program_fd, &dumpfile))
+		{
+			return 1;
+		}
+
+		if (recvString(program_fd, &ffmpegoptions))
+		{
+			return 1;
+		}
+	}
+
+	if (SharedConfig.incremental_savestates)
+	{
+		if (expectMessage(program_fd, MSGN_BASE_SAVESTATE_INDEX))
+		{
+			return 1;
+		}
+
+		if (recv(program_fd, &base_savestate_index, sizeof(base_savestate_index), MSG_WAITALL) != sizeof(base_savestate_index))
+		{
+			perror("failed to read base savestate index");
+			return 1;
+		}
+
+		if (!SharedConfig.savestates_in_ram) {
+			if (expectMessage(program_fd, MSGN_BASE_SAVESTATE_PATH))
+			{
+				return 1;
+			}
+
+			if (recvString(program_fd, &base_savestate_path))
+			{
+				return 1;
+			}
+		}
+	}
+
+	return expectMessage(program_fd, MSGN_END_INIT);
+}
+
 int init_game_socket(void)
 {
 	const struct sockaddr_un addr = { AF_UNIX, SOCKET_FILENAME };
@@ -335,6 +500,8 @@ int init_game_socket(void)
 
 int handle_program_message(int program_fd, int game_fd);
 int handle_game_message(int program_fd, int game_fd);
+
+static bool gameEndInit = false;
 
 int proxy_communications(int program_fd, int game_fd)
 {
@@ -386,14 +553,24 @@ int handle_program_message(int program_fd, int game_fd)
 		return 1;
 	}
 
-	void *payload = NULL;
-	size_t payload_size = 0;
+	if (send(game_fd, &message, sizeof(message), 0) != sizeof(message))
+	{
+		perror("failed to send message to game");
+		return 1;
+	}
+
+	string_t str = {0, NULL};
+	string_t *pstr = &str;
+	int i = 0;
+	int *pi = &i;
 
 	switch (message)
 	{
+		case MSGN_USERQUIT:
+			user_quit = true;
+			/* fallthrough */
 		case MSGN_START_FRAMEBOUNDARY:
 		case MSGN_END_FRAMEBOUNDARY:
-		case MSGN_USERQUIT:
 		case MSGN_END_INIT:
 		case MSGN_SAVESTATE:
 		case MSGN_LOADSTATE:
@@ -402,75 +579,81 @@ int handle_program_message(int program_fd, int game_fd)
 			break;
 		case MSGN_ALL_INPUTS:
 		case MSGN_PREVIEW_INPUTS:
-			payload = calloc(1, sizeof(AllInputs));
-			if (!payload)
-			{
-				perror("failed to allocate AllInputs");
-				return 1;
-			}
-			payload_size = sizeof(AllInputs);
-			if (recv(program_fd, payload, payload_size, MSG_WAITALL) != payload_size)
+			if (recv(program_fd, &AllInputs, sizeof(AllInputs), MSG_WAITALL) != sizeof(AllInputs))
 			{
 				perror("failed to read AllInputs from the program");
-				free(payload);
+				return 1;
+			}
+			if (send(game_fd, &AllInputs, sizeof(AllInputs), 0) != sizeof(AllInputs))
+			{
+				perror("failed to send AllInputs to the game");
 				return 1;
 			}
 			break;
 		case MSGN_CONFIG:
-			payload = calloc(1, sizeof(SharedConfig));
-			if (!payload)
-			{
-				perror("failed to allocate SharedConfig");
-				return 1;
-			}
-			payload_size = sizeof(SharedConfig);
-			if (recv(program_fd, payload, payload_size, MSG_WAITALL) != payload_size)
+			if (recv(program_fd, &SharedConfig, sizeof(SharedConfig), MSG_WAITALL) != sizeof(SharedConfig))
 			{
 				perror("failed to read SharedConfig from the program");
-				free(payload);
 				return 1;
 			}
-			((SharedConfig *)payload)->prevent_savefiles = false;
+			SharedConfig.prevent_savefiles = false;
+			SharedConfig.initial_time = last_frame_time;
+			if (send(game_fd, &SharedConfig, sizeof(SharedConfig), 0) != sizeof(SharedConfig))
+			{
+				perror("failed to send SharedConfig to the game");
+				return 1;
+			}
 			break;
 		case MSGN_DUMP_FILE:
-		case MSGN_OSD_MSG:
-		case MSGN_SAVESTATE_PATH:
-		case MSGN_BASE_SAVESTATE_PATH:
-		case MSGN_PARENT_SAVESTATE_PATH:
-		case MSGN_RAMWATCH:
-			if (recv(program_fd, &payload_size, sizeof(payload_size), MSG_WAITALL | MSG_PEEK) != sizeof(payload_size))
+			if (recvString(program_fd, &dumpfile))
 			{
-				perror("failed to read string length from the program");
 				return 1;
 			}
-			payload_size += sizeof(payload_size);
-			payload = calloc(1, payload_size);
-			if (!payload)
+			if (recvString(program_fd, &ffmpegoptions))
 			{
-				perror("failed to allocate string");
 				return 1;
 			}
-			if (recv(program_fd, payload, payload_size, MSG_WAITALL) != payload_size)
+			if (sendString(game_fd, dumpfile))
 			{
-				perror("failed to read string");
-				free(payload);
+				return 1;
+			}
+			if (sendString(game_fd, ffmpegoptions))
+			{
 				return 1;
 			}
 			break;
-		case MSGN_SAVESTATE_INDEX:
-		case MSGN_PARENT_SAVESTATE_INDEX:
-		case MSGN_BASE_SAVESTATE_INDEX:
-			payload_size = sizeof(int);
-			payload = calloc(1, sizeof(int));
-			if (!payload)
+		case MSGN_BASE_SAVESTATE_PATH:
+			pstr = &base_savestate_path;
+			/* fallthrough */
+		case MSGN_OSD_MSG:
+		case MSGN_SAVESTATE_PATH:
+		case MSGN_PARENT_SAVESTATE_PATH:
+		case MSGN_RAMWATCH:
+			if (recvString(program_fd, pstr))
 			{
-				perror("failed to allocate int");
 				return 1;
 			}
-			if (recv(program_fd, payload, payload_size, MSG_WAITALL) != payload_size)
+			i = sendString(game_fd, *pstr);
+			free(str.data);
+			str.data = NULL;
+			if (i)
+			{
+				return 1;
+			}
+			break;
+		case MSGN_BASE_SAVESTATE_INDEX:
+			pi = &base_savestate_index;
+			/* fallthrough */
+		case MSGN_SAVESTATE_INDEX:
+		case MSGN_PARENT_SAVESTATE_INDEX:
+			if (recv(program_fd, pi, sizeof(*pi), MSG_WAITALL) != sizeof(*pi))
 			{
 				perror("failed to read int");
-				free(payload);
+				return 1;
+			}
+			if (send(game_fd, pi, sizeof(*pi), 0) != sizeof(*pi))
+			{
+				perror("failed to send int");
 				return 1;
 			}
 			break;
@@ -479,23 +662,79 @@ int handle_program_message(int program_fd, int game_fd)
 			return 1;
 	}
 
-	if (send(game_fd, &message, sizeof(message), 0) != sizeof(message))
+	return 0;
+}
+
+int sendGameInit(int fd)
+{
+	int message = MSGN_CONFIG;
+	if (send(fd, &message, sizeof(message), 0) != sizeof(message))
 	{
-		perror("failed to send message to game");
-		free(payload);
+		perror("failed to send MSGN_CONFIG init packet to game");
 		return 1;
 	}
 
-	if (payload_size)
+	if (send(fd, &SharedConfig, sizeof(SharedConfig), MSG_WAITALL) != sizeof(SharedConfig))
 	{
-		if (send(game_fd, payload, payload_size, 0) != payload_size)
+		perror("failed to send SharedConfig init packet to game");
+		return 1;
+	}
+
+	if (SharedConfig.av_dumping)
+	{
+		message = MSGN_DUMP_FILE;
+		if (send(fd, &message, sizeof(message), 0) != sizeof(message))
 		{
-			perror("failed to send payload to game");
-			free(payload);
+			perror("failed to send MSGN_DUMP_FILE init packet to game");
 			return 1;
 		}
 
-		free(payload);
+		if (sendString(fd, dumpfile))
+		{
+			return 1;
+		}
+
+		if (sendString(fd, ffmpegoptions))
+		{
+			return 1;
+		}
+	}
+
+	if (SharedConfig.incremental_savestates)
+	{
+		message = MSGN_BASE_SAVESTATE_INDEX;
+		if (send(fd, &message, sizeof(message), 0) != sizeof(message))
+		{
+			perror("failed to send MSGN_BASE_SAVESTATE_INDEX init packet to game");
+			return 1;
+		}
+
+		if (send(fd, &base_savestate_index, sizeof(base_savestate_index), 0) != sizeof(base_savestate_index))
+		{
+			perror("failed to send base_savestate_index to game");
+			return 1;
+		}
+
+		if (!SharedConfig.savestates_in_ram) {
+			message = MSGN_BASE_SAVESTATE_PATH;
+			if (send(fd, &message, sizeof(message), 0) != sizeof(message))
+			{
+				perror("failed to send MSGN_BASE_SAVESTATE_PATH init packet to game");
+				return 1;
+			}
+
+			if (sendString(fd, base_savestate_path))
+			{
+				return 1;
+			}
+		}
+	}
+
+	message = MSGN_END_INIT;
+	if (send(fd, &message, sizeof(message), 0) != sizeof(message))
+	{
+		perror("failed to send MSGN_END_INIT packet to game");
+		return 1;
 	}
 
 	return 0;
@@ -510,34 +749,93 @@ int handle_game_message(int program_fd, int game_fd)
 		return 1;
 	}
 
+#pragma pack(push, 1)
+	struct
+	{
+		unsigned long framecount;
+		struct timespec time;
+	} framecount_time;
+#pragma pack(pop)
+	pid_t pid;
+	int window;
+	GameInfo gi;
+	float fps[2];
+	string_t str;
+
 	size_t payload_size = 0;
-	size_t cstring = 0;
+	void *payload = NULL;
+	bool read_payload = false;
 
 	switch (message)
 	{
-		case MSGB_START_FRAMEBOUNDARY:
-		case MSGB_QUIT:
 		case MSGB_END_INIT:
+			if (sendGameInit(game_fd))
+			{
+				return 1;
+			}
+			/* don't forward */
+			return 0;
+		case MSGB_QUIT:
+			if (!user_quit)
+			{
+				/* don't forward */
+				return 0;
+			}
+			/* fallthrough */
+		case MSGB_START_FRAMEBOUNDARY:
 		case MSGB_LOADING_SUCCEEDED:
 		case MSGB_ENCODE_FAILED:
 			break;
 		case MSGB_FRAMECOUNT_TIME:
-			payload_size = sizeof(unsigned long) + sizeof(struct timespec);
+			if (recv(game_fd, &framecount_time, sizeof(framecount_time), MSG_WAITALL) != sizeof(framecount_time))
+			{
+				perror("failed to read framecount_time packet");
+				return 1;
+			}
+			framecount_time.framecount += base_frame_count;
+			last_frame_count = framecount_time.framecount;
+			last_frame_time = framecount_time.time;
+			payload = &framecount_time;
+			payload_size = sizeof(framecount_time);
 			break;
 		case MSGB_PID:
-			payload_size = sizeof(pid_t);
-			break;
+			if (recv(game_fd, &pid, sizeof(pid), MSG_WAITALL) != sizeof(pid))
+			{
+				perror("failed to receive game pid");
+				return 1;
+			}
+			/* don't forward */
+			return 0;
 		case MSGB_WINDOW_ID:
-			payload_size = sizeof(int);
+			payload = &window;
+			payload_size = sizeof(window);
+			read_payload = true;
 			break;
 		case MSGB_ALERT_MSG:
-			cstring = 1;
-			break;
+			if (recvString(game_fd, &str))
+			{
+				return 1;
+			}
+			if (send(program_fd, &message, sizeof(message), 0) != sizeof(message))
+			{
+				perror("failed to send message to program");
+				return 1;
+			}
+			if (sendString(program_fd, str))
+			{
+				return 1;
+			}
+			/* don't send the payload using the shared path */
+			return 0;
 		case MSGB_GAMEINFO:
-			payload_size = sizeof(GameInfo);
+			payload = &gi;
+			payload_size = sizeof(gi);
+			read_payload = true;
 			break;
 		case MSGB_FPS:
-			payload_size = sizeof(float) * 2;
+			payload = &fps;
+			payload_size = sizeof(fps);
+			read_payload = true;
 			break;
 		default:
 			fprintf(stderr, "unexpected message from game: %d\n", message);
@@ -550,69 +848,22 @@ int handle_game_message(int program_fd, int game_fd)
 		return 1;
 	}
 
-	void *payload = NULL;
-	if (payload_size)
+	if (read_payload)
 	{
-		payload = calloc(1, payload_size);
-		if (!payload)
-		{
-			perror("failed to allocate space for game packet");
-			return 1;
-		}
-
 		if (recv(game_fd, payload, payload_size, MSG_WAITALL) != payload_size)
 		{
-			perror("failed to read game payload");
-			free(payload);
+			perror("failed to read packet from game");
 			return 1;
 		}
-
-		if (send(program_fd, payload, payload_size, 0) != payload_size)
-		{
-			perror("failed to send payload to program");
-			free(payload);
-			return 1;
-		}
-
-		free(payload);
 	}
 
-	for (; cstring; cstring--)
+	if (payload_size)
 	{
-		if (recv(game_fd, &payload_size, sizeof(payload_size), MSG_WAITALL) != sizeof(payload_size))
-		{
-			perror("failed to read string length from game");
-			return 1;
-		}
-
-		if (send(program_fd, &payload_size, sizeof(payload_size), 0) != sizeof(payload_size))
-		{
-			perror("failed to send string length to program");
-			return 1;
-		}
-
-		payload = calloc(1, payload_size);
-		if (!payload)
-		{
-			perror("failed to allocate space for game string");
-			return 1;
-		}
-
-		if (recv(game_fd, payload, payload_size, MSG_WAITALL) != payload_size)
-		{
-			perror("failed to read string from game");
-			free(payload);
-			return 1;
-		}
-
 		if (send(program_fd, payload, payload_size, 0) != payload_size)
 		{
-			perror("failed to send string to program");
-			free(payload);
+			perror("failed to send packet to program");
 			return 1;
 		}
-
-		free(payload);
 	}
 
 	return 0;
