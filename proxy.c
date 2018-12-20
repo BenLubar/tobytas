@@ -281,7 +281,7 @@ int main(int argc, char *argv[])
 			tempDir[0] = 0;
 
 			/* we are the child; execute the process */
-			execv(argv[1], argv + 2);
+			execv(argv[1], argv + 1);
 
 			/* if we got this far, there's an error */
 			perror("failed to exec");
@@ -349,7 +349,7 @@ void remove_temp_directory()
 		return;
 	}
 
-	execl("/bin/rm", "-rf", tempDir, NULL);
+	execl("/bin/rm", "rm", "-rf", tempDir, NULL);
 
 	/* if execl failed, we will reach this code */
 	tempDir[0] = 0;
