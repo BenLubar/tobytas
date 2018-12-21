@@ -9,7 +9,7 @@
 - In libTAS, set the following options for Undertale/Deltarune:
   - Runtime / `Backup savefiles in memory` (other options can be set by preference)
   - Input: `Keyboard support` (disable `Mouse support`, only relevant if editing)
-- The "game" you'll be running in libTAS is actually a [proxy program](proxy.c) which assists with restarting Undertale during the TAS. (A compiled version will be included in the final version of the TAS.)
+- The "game" you'll be running in libTAS is actually a [proxy program](proxy.c) which assists with restarting Undertale during the TAS. (A compiled version is included in this repository.)
   - There should be two copies; one named `undertale/undertale-proxy` and the other named `deltarune/deltarune-proxy`; again, this is to prevent libTAS from being confused.
   - For each copy, set the argument list to `./undertale-runner` or `./deltarune-runner` based on the game.
 
