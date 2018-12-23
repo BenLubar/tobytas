@@ -1,0 +1,7 @@
+# deltarune-1 is the placeholder program's dump, which will be equal in length
+# to deltarune-0, but with blank video and no audio.
+#
+# TODO: before release, change this
+# to deltarune-1.mp4
+file 'deltarune-0.mp4'
+file 'deltarune-2.mp4'
