@@ -612,8 +612,8 @@ func render(bits []uint32) {
 		if left < minLeft {
 			left = minLeft
 		} else {
-			draw.Draw(img, image.Rect(0, displayTop, left, totalHeight), splashKey, image.Pt(0, displayTop), draw.Over)
-			draw.DrawMask(img, image.Rect(left, displayTop, width, totalHeight), splashKey, image.Pt(left, displayTop), invMask, image.ZP, draw.Over)
+			draw.Draw(img, image.Rect(0, 0, left, height), splashKey, image.Pt(0, displayTop), draw.Over)
+			draw.DrawMask(img, image.Rect(left, 0, width, height), splashKey, image.Pt(left, displayTop), invMask, image.ZP, draw.Over)
 		}
 
 		_, err := os.Stdout.Write(img.Pix)
