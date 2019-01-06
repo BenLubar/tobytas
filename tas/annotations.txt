@@ -50,7 +50,7 @@ An exhaustive list:
 
 - As Deltarune is much shorter than Undertale, the Undertale genocide route will replace Deltarune once the game is over. I do not consider this a violation of the rule as this is done for entertainment and is separate from the two start-to-end completions of the games with no damage dealt or taken. If necessary, I may be able to produce a version of the TAS in which Deltarune wastes time until the end of Undertale instead.
 
-The fight with Mettaton EX includes a mechanic that reduces the required score needed to complete the fight. This mechanic is *not* allowed as an exception to the "no damage dealt" rule despite it not affecting the hitpoints of the boss as it causes visible injuries to the boss.
+Although shooting Mettaton EX's heart technically does not deal damage and therefore does not violate any of the category restrictions, this TAS avoids it for entertainment value.
 
 ² This refers to developer-intended hidden methods of skipping gameplay. Any non-developer-intended skips are already covered by the "glitchless" category.
 
