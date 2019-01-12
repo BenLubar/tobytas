@@ -5,6 +5,7 @@ deltarune
 # binary output files
 *.ltm
 *.mp4
+tas-splash-*.png
 
 # youtubeuploader
 client_secrets.json

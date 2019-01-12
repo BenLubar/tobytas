@@ -1,2 +1,2 @@
-file 'undertale-1.mp4'
-file 'undertale-2.mp4'
+file 'undertale.mp4'
+file 'undertale_1.mp4'

@@ -8,28 +8,12 @@ int main(int argc, char *argv[])
 {
 	const char *savedir = getenv("HOME");
 
-	(void)mkdir(savedir, 0755);
+	/* Force time zone to avoid having the TAS desync due to time zone. */
+	setenv("TZ", "America/Chicago", 1);
 
-	unsigned char segmentNumber = 0;
-	char segment[4];
-
+	/* Deltarune only has one segment. If Deltarune has saved, assume we are on an Undertale segment. */
 	char buf[PATH_MAX];
-	snprintf(buf, PATH_MAX, "%s/.tas-segment", savedir);
-	FILE *segmentFile = fopen(buf, "rb");
-	if (segmentFile)
-	{
-		fread(&segmentNumber, 1, 1, segmentFile);
-		fclose(segmentFile);
-	}
-	segmentNumber++;
-	segmentFile = fopen(buf, "wb");
-	fwrite(&segmentNumber, 1, 1, segmentFile);
-	fclose(segmentFile);
-
-	snprintf(segment, 4, "%d", segmentNumber);
-	setenv("TAS_SEGMENT", segment, 1);
-
-	snprintf(buf, PATH_MAX, "%s/.config/DELTARUNE", getenv("HOME"));
+	snprintf(buf, PATH_MAX, "%s/.config/DELTARUNE", savedir);
 
 	struct stat st;
 	if (!stat(buf, &st))

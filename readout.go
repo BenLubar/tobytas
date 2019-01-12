@@ -43,8 +43,8 @@ const (
 
 var mask = loadPNG("tas-mask.png")
 var invMask = invertMask(mask)
-var splash = loadPNG("tas-splash.png")
-var splashKey = removeBlack(splash)
+var splash1 = removeBlack(loadPNG("tas-splash-1.png"))
+var splash2 = removeBlack(loadPNG("tas-splash-2.png"))
 
 func loadPNG(name string) *image.RGBA {
 	f, err := os.Open(name)
@@ -517,15 +517,12 @@ const (
 	display = (target + buttonSize + step) / step
 )
 
-var (
-	minLeft     = width - mask.Rect.Max.X
-	totalHeight = splash.Rect.Max.Y
-	displayTop  = totalHeight - height
-)
-
 func render(bits []uint32) {
 	img := image.NewRGBA(image.Rect(0, 0, width, height))
-	left := target + 12*30*step
+	minLeft := width - mask.Rect.Max.X
+	maxLeft := target + 12*30*step
+	left := maxLeft
+	splashStep := 0
 
 	for trueFrame := range bits {
 		draw.Draw(img, img.Rect, image.Black, image.ZP, draw.Src)
@@ -608,12 +605,20 @@ func render(bits []uint32) {
 			}
 		}
 
-		left -= step
-		if left < minLeft {
-			left = minLeft
-		} else {
-			draw.Draw(img, image.Rect(0, 0, left, height), splashKey, image.Pt(0, displayTop), draw.Over)
-			draw.DrawMask(img, image.Rect(left, 0, width, height), splashKey, image.Pt(left, displayTop), invMask, image.ZP, draw.Over)
+		if splashStep < 2 {
+			draw.Draw(img, image.Rect(0, 0, left, height), splash1, image.ZP, draw.Over)
+			draw.DrawMask(img, image.Rect(left, 0, width, height), splash1, image.Pt(left, 0), invMask, image.ZP, draw.Over)
+
+			if splashStep == 0 {
+				draw.DrawMask(img, image.Rect(left, 0, width, height), splash2, image.Pt(left, 0), mask, image.ZP, draw.Over)
+			}
+
+			left -= step
+			if left < minLeft {
+				left = maxLeft
+				splashStep++
+				splash1 = splash2
+			}
 		}
 
 		_, err := os.Stdout.Write(img.Pix)

@@ -15,7 +15,7 @@
 
 ## Dumping:
 
-- Filename should be `undertale-$TAS_SEGMENT.mp4` or `deltarune-$TAS_SEGMENT.mp4` in this directory.
+- Filename should be `undertale.mp4` or `deltarune.mp4` in this directory.
 - ffmpeg settings: `-c:v libx264 -crf 0 -c:a flac -strict -2 -movflags +faststart` (you can use whatever you want; these are just my settings)
 - Record movie as usual for libTAS.
   - Tools / `Start encode`
@@ -27,7 +27,7 @@
 
 ## Encoding:
 
-- `undertale-1.mp4`, `undertale-2.mp4`, `deltarune-1.mp4`, and `deltarune-2.mp4` should already be in this directory.
+- `undertale.mp4`, `undertale_1.mp4`, `deltarune.mp4`, and `deltarune_1.mp4` should already be in this directory.
 - If you do not have a Go compiler installed:
   - Get someone else to compile [`readout.go`](readout.go) for you.
   - Edit [`encode.sh`](encode.sh) to call the compiled executable instead of `go run readout.go`.
@@ -38,3 +38,7 @@
 - Use [`./makeltm.sh filename.ltm`](makeltm.sh) to pack the `tas` directory into a libTAS movie.
 - Edit the movie as it would be normally done in libTAS.
 - Use [`./commit.sh filename.ltm`](commit.sh) to store your changes in Git. This will open your text editor for a commit message.
+
+## Special thanks
+
+- *Determination* fonts from <https://www.behance.net/gallery/31268855/Determination-Better-Undertale-Font>
