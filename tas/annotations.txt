@@ -1,6 +1,6 @@
 Game: Undertale + Deltarune (two games one controller)
 Version: Linux English (Undertale v1.06, Deltarune v0.6.6.6)
-Categories: true pacifist¹, no-hit¹, glitchless, no skips²
+Categories: true pacifist¹, no-hit¹, glitchless, no skips², all pink credits, all bosses
 
 Game summary: Undertale
 
