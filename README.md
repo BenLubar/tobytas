@@ -7,7 +7,7 @@
 - Rename `undertale/runner` to `undertale/undertale-runner` and `deltarune/runner` to `deltarune/deltarune-runner`. This is required to prevent libTAS from loading save states from the wrong game and also for a later part of the TAS.
 - Run [`./makeltm.sh undertale.ltm; ./makeltm.sh deltarune.ltm`](makeltm.sh). This will create libTAS movie files from the extracted contents in the [tas](tas) directory.
 - In libTAS, set the following options for Undertale/Deltarune:
-  - Runtime / `Backup savefiles in memory` should be UNCHECKED (other options can be set by preference)
+  - Runtime / `Backup savefiles in memory` should be checked (other options can be set by preference)
   - Input: `Keyboard support` (disable `Mouse support`, only relevant if editing)
 - The "game" you'll be running in libTAS is actually a [proxy program](proxy.c) which assists with restarting Undertale during the TAS. (A compiled version is included in this repository.)
   - There should be two copies; one named `undertale/undertale-proxy` and the other named `deltarune/deltarune-proxy`; again, this is to prevent libTAS from being confused.

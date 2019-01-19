@@ -1,22 +1,17 @@
 #include <limits.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 #include <sys/stat.h>
 #include <unistd.h>
 
 int main(int argc, char *argv[])
 {
-	const char *savedir = getenv("HOME");
-
 	/* Force time zone to avoid having the TAS desync due to time zone. */
 	setenv("TZ", "America/Chicago", 1);
 
-	/* Deltarune only has one segment. If Deltarune has saved, assume we are on an Undertale segment. */
-	char buf[PATH_MAX];
-	snprintf(buf, PATH_MAX, "%s/.config/DELTARUNE", savedir);
-
-	struct stat st;
-	if (!stat(buf, &st))
+	/* Deltarune only has one segment. If we are not on frame 0, start Undertale. */
+	if (strcmp(getenv("LIBTAS_START_FRAME"), "0") != 0)
 	{
 		if (chdir("../undertale"))
 		{
