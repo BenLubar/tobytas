@@ -38,7 +38,7 @@ int main(int argc, char *argv[])
 		}
 		else
 		{
-			execlp("rm", "-rf", fakehome, NULL);
+			execlp("rm", "rm", "-rf", fakehome, NULL);
 		}
 	}
 
