@@ -113,7 +113,7 @@ func parse(r io.Reader) []uint32 {
 
 	for s.Scan() {
 		line := s.Text()
-		line = line[1 : len(line)-3]
+		line = strings.Split(line, "|")[1]
 		if line == "" {
 			bits = append(bits, 0)
 			continue
