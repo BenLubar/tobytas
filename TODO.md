@@ -3,12 +3,12 @@ True Pacifist:
 - Ruins
   - [X] Whimsun
   - [X] Froggit
-  - [ ] Napstablook
+  - [X] Napstablook
+  - [X] Activate Pink Credits
+  - [X] Vegetoid
   - [ ] Moldsmal
   - [ ] Loox
-  - [ ] Vegetoid
   - [ ] Migosp
-  - [ ] Activate Pink Credits
 - Snowdin
   - [ ] Snowdrake
   - [ ] Ice Cap
