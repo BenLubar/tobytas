@@ -25,6 +25,9 @@ const (
 	key_z = 1 << iota
 	key_x
 	key_c
+	key_return
+	key_shift
+	key_ctrl
 	key_up
 	key_down
 	key_left
@@ -151,6 +154,8 @@ func parse(r io.Reader) []uint32 {
 				b |= key_x
 			case "7a":
 				b |= key_z
+			case "ff0d":
+				b |= key_return
 			case "ff51":
 				b |= key_left
 			case "ff52":
@@ -159,6 +164,10 @@ func parse(r io.Reader) []uint32 {
 				b |= key_right
 			case "ff54":
 				b |= key_down
+			case "ffe1":
+				b |= key_shift
+			case "ffe3":
+				b |= key_ctrl
 			default:
 				panic(key)
 			}
@@ -491,6 +500,7 @@ func makeMask(str string) [2]*image.Alpha {
 }
 
 const (
+	preButtonCount   = 3
 	buttonCount      = 7
 	extraButtonCount = len(buttons) - buttonCount
 	width, height    = 640, 120
@@ -527,13 +537,19 @@ func render(bits []uint32) {
 	for trueFrame := range bits {
 		draw.Draw(img, img.Rect, image.Black, image.ZP, draw.Src)
 
-		for btn := 0; btn < buttonCount+extraButtonCount; btn++ {
+		for btn := -preButtonCount; btn < buttonCount+extraButtonCount; btn++ {
 			var (
 				// detect holds by going forward, then draw the symbols backward
 				backString [display*2 + 1]bool
 				glowLevel  [display*2 + 1]int
 				any        bool
 			)
+
+			isPre := btn < 0
+			btn2 := btn + preButtonCount
+			if isPre {
+				btn = btn2
+			}
 
 			xoff := 0
 			y := top + buttonSize*btn
@@ -549,7 +565,7 @@ func render(bits []uint32) {
 					backString[offset] = false
 					glowLevel[offset] = 0
 				} else {
-					if bits[refFrame]&(1<<uint(btn)) == 0 {
+					if bits[refFrame]&(1<<uint(btn2)) == 0 {
 						backString[offset] = false
 						if i == -display || glowLevel[offset-1] <= 0 {
 							glowLevel[offset] = 0
