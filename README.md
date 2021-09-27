@@ -6,7 +6,8 @@
     - Runtime > Debug > Time tracking all threads > `clock_gettime()`
     - Runtime > Prevent writing to disk
     - Runtime > Virtual Steam client
-3. TODO
+3. Run `./makeltm.sh undertale.ltm; ./makeltm.sh deltarune.ltm`
+4. Start Undertale via `$HOME/.steam/steam/steamapps/common/Undertale/runner` and Deltarune via `$HOME/.steam/steam/steamapps/common/DELTARUNEdemo/DELTARUNE.exe`. I used Proton 5.0 for Deltarune.
 
 ## Dumping:
 
