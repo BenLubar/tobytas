@@ -1,8 +1,8 @@
 True Pacifist:
 
 - Ruins
-  - [ ] Whimsun
-  - [ ] Froggit
+  - [x] Whimsun
+  - [x] Froggit
   - [ ] Napstablook
   - [ ] Activate Pink Credits
   - [ ] Vegetoid
