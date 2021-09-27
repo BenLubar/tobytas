@@ -538,7 +538,7 @@ func render(bits []uint32) {
 	for trueFrame := range bits {
 		draw.Draw(img, img.Rect, image.Black, image.ZP, draw.Src)
 
-		for btn := -preButtonCount; btn < buttonCount+extraButtonCount; btn++ {
+		for i := -preButtonCount; i < buttonCount+extraButtonCount; i++ {
 			var (
 				// detect holds by going forward, then draw the symbols backward
 				backString [display*2 + 1]bool
@@ -546,7 +546,8 @@ func render(bits []uint32) {
 				any        bool
 			)
 
-			isPre := btn < 0
+			isPre := i < 0
+			btn := i
 			btn2 := btn + preButtonCount
 			if isPre {
 				btn = btn2
