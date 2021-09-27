@@ -1,2 +1,1 @@
 file 'deltarune.mp4'
-file 'deltarune_1.mp4'

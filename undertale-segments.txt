@@ -1,2 +1,1 @@
 file 'undertale.mp4'
-file 'undertale_1.mp4'

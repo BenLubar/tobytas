@@ -1,11 +1,11 @@
 True Pacifist:
 
 - Ruins
-  - [X] Whimsun
-  - [X] Froggit
-  - [X] Napstablook
-  - [X] Activate Pink Credits
-  - [X] Vegetoid
+  - [ ] Whimsun
+  - [ ] Froggit
+  - [ ] Napstablook
+  - [ ] Activate Pink Credits
+  - [ ] Vegetoid
   - [ ] Moldsmal
   - [ ] Loox
   - [ ] Migosp
@@ -39,16 +39,3 @@ True Pacifist:
   - [ ] Madjick
   - [ ] Knight Knight
   - [ ] Amalgamates
-
-Genocide:
-
-- [0/20] Ruins kills
-- [ ] Toriel
-- [ ] Snowdrake
-- [0/16] Snowdin kills
-- [ ] Papyrus
-- [0/18] Waterfall kills
-- [ ] Battle against a True Hero
-- [0/40] Hotland/CORE kills
-- [ ] Power of NEO
-- [ ] Megalovania

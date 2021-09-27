@@ -117,6 +117,7 @@ func parse(r io.Reader) []uint32 {
 	for s.Scan() {
 		line := s.Text()
 		line = strings.Split(line, "|")[1]
+		line = strings.TrimPrefix(line, "K")
 		if line == "" {
 			bits = append(bits, 0)
 			continue
