@@ -1,11 +1,9 @@
 ## Setup:
 
 1. Install Undertale and Deltarune Chapter 1 and 2 Demo on Steam on Linux.
-2. libTAS 1.4.2 setting required:
-    - Runtime > Debug > Time tracking all threads > `clock_gettime()`
-3. Run `./makeltm.sh undertale.ltm; ./makeltm.sh deltarune.ltm`
-4. Run `./convert-deltarune.sh` to automatically perform the steps described in <https://www.reddit.com/r/Undertale/comments/prg9n1/how_to_get_deltarune_chapter_2_running_on_linux/>
-5. Start Undertale via `$HOME/.steam/steam/steamapps/common/Undertale/runner` and Deltarune via `[this folder]/deltarune/runner`
+2. Run `./makeltm.sh undertale.ltm; ./makeltm.sh deltarune.ltm`
+3. Run `./convert-deltarune.sh` to automatically perform the steps described in <https://www.reddit.com/r/Undertale/comments/prg9n1/how_to_get_deltarune_chapter_2_running_on_linux/>
+4. Start Undertale via `$HOME/.steam/steam/steamapps/common/Undertale/runner` and Deltarune via `[this folder]/deltarune/runner`
 
 ## Dumping:
 

@@ -567,21 +567,26 @@ func render(bits []uint32) {
 					backString[offset] = false
 					glowLevel[offset] = 0
 				} else {
-					if bits[refFrame]&(1<<uint(btn2)) == 0 {
-						backString[offset] = false
-						if i == -display || glowLevel[offset-1] <= 0 {
-							glowLevel[offset] = 0
-						} else {
-							glowLevel[offset] = glowLevel[offset-1] - 1
-						}
-					} else {
+					isHeld := bits[refFrame]&(1<<btn2) != 0
+					isGlow := isHeld || (btn < preButtonCount && bits[refFrame]&(1<<btn) != 0)
+
+					if isHeld {
 						any = true
 						backString[offset] = true
+					}
+
+					if isGlow {
 						if i == -display {
 							glowLevel[offset] = 1
 						} else {
 
 							glowLevel[offset] = glowHold
+						}
+					} else {
+						if i == -display || glowLevel[offset-1] <= 0 {
+							glowLevel[offset] = 0
+						} else {
+							glowLevel[offset] = glowLevel[offset-1] - 1
 						}
 					}
 				}
