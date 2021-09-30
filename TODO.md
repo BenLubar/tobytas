@@ -10,8 +10,8 @@ True Pacifist:
   - [x] Loox
   - [x] Migosp
 - Snowdin
-  - [ ] Snowdrake
-  - [ ] Ice Cap
+  - [x] Snowdrake
+  - [x] Ice Cap
   - [ ] Gryftrot
   - [ ] Glyde
   - [ ] Doggo
