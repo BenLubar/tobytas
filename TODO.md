@@ -13,8 +13,7 @@ True Pacifist:
   - [x] Snowdrake
   - [x] Ice Cap
   - [ ] Gryftrot
-  - [ ] Glyde
-  - [ ] Doggo
+  - [x] Doggo
   - [ ] Dog Marriage
   - [ ] Lesser Dog
   - [ ] Greater Dog
@@ -31,7 +30,6 @@ True Pacifist:
   - [ ] Pyrope
   - [ ] Muffet
   - [ ] Royal Guards
-  - [ ] So Sorry
 - CORE
   - [ ] Final Froggit
   - [ ] Whimsalot
