@@ -14,8 +14,8 @@ True Pacifist:
   - [x] Ice Cap
   - [ ] Gryftrot
   - [x] Doggo
-  - [ ] Dog Marriage
-  - [ ] Lesser Dog
+  - [x] Dog Marriage
+  - [x] Lesser Dog
   - [ ] Greater Dog
 - Waterfall
   - [ ] Aaron
