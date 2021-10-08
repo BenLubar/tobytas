@@ -12,7 +12,7 @@ True Pacifist:
 - Snowdin
   - [x] Snowdrake
   - [x] Ice Cap
-  - [ ] Gryftrot
+  - [x] Gryftrot
   - [x] Doggo
   - [x] Dog Marriage
   - [x] Lesser Dog
