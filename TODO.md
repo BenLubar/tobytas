@@ -16,7 +16,7 @@ True Pacifist:
   - [x] Doggo
   - [x] Dog Marriage
   - [x] Lesser Dog
-  - [ ] Greater Dog
+  - [x] Greater Dog
 - Waterfall
   - [ ] Aaron
   - [ ] Moldbygg
