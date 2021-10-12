@@ -7,5 +7,6 @@ fi
 
 tar xzf "$1" -C tas
 sed -i tas/config.ini -e 's/game_name=.*/game_name=runner/'
+go run inputsorter.go
 git add tas
 git commit -m "$(wc -l tas/inputs | cut -d ' ' -f 1) frames" --edit
