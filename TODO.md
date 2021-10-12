@@ -20,7 +20,7 @@ True Pacifist:
 - Waterfall
   - [ ] Aaron
   - [ ] Moldbygg
-  - [ ] Woshua
+  - [x] Woshua
   - [ ] Temmie
   - [ ] Mad Dummy
   - [ ] Shyren
