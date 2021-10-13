@@ -23,7 +23,7 @@ True Pacifist:
   - [x] Woshua
   - [ ] Temmie
   - [ ] Mad Dummy
-  - [ ] Shyren
+  - [x] Shyren
 - Hotland
   - [ ] Vulkin
   - [ ] Tsunderplane
