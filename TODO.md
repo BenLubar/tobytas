@@ -22,7 +22,7 @@ True Pacifist:
   - [ ] Moldbygg
   - [x] Woshua
   - [ ] Temmie
-  - [ ] Mad Dummy
+  - [x] Mad Dummy
   - [x] Shyren
 - Hotland
   - [ ] Vulkin
