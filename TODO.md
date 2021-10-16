@@ -18,10 +18,10 @@ True Pacifist:
   - [x] Lesser Dog
   - [x] Greater Dog
 - Waterfall
-  - [ ] Aaron
+  - [x] Aaron
   - [ ] Moldbygg
   - [x] Woshua
-  - [ ] Temmie
+  - [x] Temmie
   - [x] Mad Dummy
   - [x] Shyren
 - Hotland
