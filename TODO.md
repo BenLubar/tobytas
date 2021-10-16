@@ -19,7 +19,7 @@ True Pacifist:
   - [x] Greater Dog
 - Waterfall
   - [x] Aaron
-  - [ ] Moldbygg
+  - [x] Moldbygg
   - [x] Woshua
   - [x] Temmie
   - [x] Mad Dummy
