@@ -25,11 +25,9 @@ True Pacifist:
   - [x] Mad Dummy
   - [x] Shyren
 - Hotland
-  - [x] Vulkin
-  - [x] Tsunderplane
+  - [ ] Vulkin
+  - [ ] Tsunderplane
   - [ ] Pyrope
-  - [ ] Muffet
-  - [ ] Royal Guards
 - CORE
   - [ ] Final Froggit
   - [ ] Whimsalot
