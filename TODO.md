@@ -25,8 +25,8 @@ True Pacifist:
   - [x] Mad Dummy
   - [x] Shyren
 - Hotland
-  - [ ] Vulkin
-  - [ ] Tsunderplane
+  - [x] Vulkin
+  - [x] Tsunderplane
   - [ ] Pyrope
 - CORE
   - [ ] Final Froggit
