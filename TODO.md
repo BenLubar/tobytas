@@ -27,11 +27,11 @@ True Pacifist:
 - Hotland
   - [x] Vulkin
   - [x] Tsunderplane
-  - [ ] Pyrope
+  - [x] Pyrope
 - CORE
   - [ ] Final Froggit
   - [ ] Whimsalot
   - [ ] Astigmatism
   - [ ] Madjick
   - [ ] Knight Knight
-  - [ ] Amalgamates
+  - [ ] Endogeny
